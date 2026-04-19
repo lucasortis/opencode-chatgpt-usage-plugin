@@ -4,12 +4,17 @@ import {
   createUsageCacheRecord,
   fetchUsageSnapshot,
   getUsageCacheKey,
-  GPT_USAGE_ACCOUNT_ID_ENV,
-  GPT_USAGE_TOKEN_ENV,
   readUsageCache,
 } from "./api.js"
-import { formatSnapshotTime, formatUsageLines } from "./format.js"
-import type { UsageSnapshot } from "./types.js"
+import {
+  formatPlanType,
+  formatRemainingPercent,
+  formatResetAt,
+  formatSnapshotTime,
+  formatUsageLines,
+  getRemainingPercent,
+} from "./format.js"
+import type { UsageSnapshot, UsageWindowSnapshot } from "./types.js"
 
 const pluginID = "lucas.gpt-usage"
 const commandValue = "lucas.gpt-usage.open"
@@ -114,60 +119,108 @@ async function openUsageDialog(api: TuiPluginApi): Promise<void> {
 }
 
 function UsageDialog(props: { api: TuiPluginApi; state: UsageDialogState; onClose: () => void }) {
-  const Dialog = props.api.ui.Dialog
   const theme = props.api.theme.current
-  const lines = props.state.snapshot ? formatUsageLines(props.state.snapshot) : []
   const statusColor = pickStatusColor(props.api, props.state)
+  const snapshot = props.state.snapshot
+  const primaryWindow = snapshot?.rateLimit?.primaryWindow
+  const secondaryWindow = snapshot?.rateLimit?.secondaryWindow
+  const additionalRateLimits = snapshot?.additionalRateLimits ?? []
 
   return (
-    <Dialog size={selectDialogSize(props.state.snapshot)} onClose={props.onClose}>
-      <box flexDirection="column" gap={1} paddingLeft={2} paddingRight={2} paddingBottom={1} width="100%">
-        <text fg={theme.text}>
-          <b>ChatGPT usage</b>
-        </text>
+    <box flexDirection="column" gap={1} paddingLeft={2} paddingRight={2} paddingBottom={1} width="100%" alignItems="center">
+      <box flexDirection="column" gap={1} width="100%" maxWidth={72}>
+        <box flexDirection="row" justifyContent="space-between">
+          <text fg={theme.text}>
+            <b>ChatGPT usage</b>
+          </text>
 
-        <text fg={statusColor}>{formatStatusLine(props.state)}</text>
+          <text fg={theme.textMuted} onMouseUp={props.onClose}>
+            esc
+          </text>
+        </box>
 
-        {props.state.error ? <text fg={theme.error}>{props.state.error}</text> : null}
+        <box border borderColor={theme.borderActive} paddingTop={1} paddingBottom={1} paddingLeft={2} paddingRight={2} flexDirection="column" gap={1}>
+          <text fg={theme.primary}>
+            <b>{formatPlanType(snapshot?.planType ?? null)}</b>
+          </text>
 
-        {lines.length > 0 ? (
-          <box
-            border
-            borderColor={theme.border}
-            paddingTop={1}
-            paddingBottom={1}
-            paddingLeft={2}
-            paddingRight={2}
-            flexDirection="column"
-            gap={1}
-          >
-            {lines.map((line) => (
-              <text fg={theme.text}>{line}</text>
-            ))}
+          <text fg={statusColor} wrapMode="word">
+            {formatStatusLine(props.state)}
+          </text>
+
+          {props.state.error ? (
+            <text fg={theme.error} wrapMode="word">
+              {props.state.error}
+            </text>
+          ) : null}
+
+          {snapshot ? (
+            <box flexDirection="column" gap={1} paddingTop={1}>
+              {primaryWindow ? <UsageRow api={props.api} label="5h limit" window={primaryWindow} /> : null}
+              {secondaryWindow ? <UsageRow api={props.api} label="Weekly limit" window={secondaryWindow} /> : null}
+            </box>
+          ) : (
+            <box flexDirection="column" gap={1} paddingTop={1}>
+              <text fg={theme.textMuted}>No cached usage snapshot yet.</text>
+              <text fg={theme.textMuted} wrapMode="word">
+                Run /gpt-usage again anytime to refresh your current ChatGPT limits.
+              </text>
+            </box>
+          )}
+        </box>
+
+        {additionalRateLimits.length > 0 ? (
+          <box border borderColor={theme.border} paddingTop={1} paddingBottom={1} paddingLeft={2} paddingRight={2} flexDirection="column" gap={1}>
+            <text fg={theme.text}>
+              <b>Additional limits</b>
+            </text>
+
+            {additionalRateLimits.map((limit) => {
+              const label = limit.limitName ?? limit.meteredFeature ?? "Additional limit"
+
+              return (
+                <box flexDirection="column" gap={1}>
+                  {limit.rateLimit?.primaryWindow ? (
+                    <UsageRow
+                      api={props.api}
+                      label={limit.rateLimit.secondaryWindow ? `${label} (primary)` : label}
+                      window={limit.rateLimit.primaryWindow}
+                    />
+                  ) : null}
+
+                  {limit.rateLimit?.secondaryWindow ? (
+                    <UsageRow api={props.api} label={`${label} (secondary)`} window={limit.rateLimit.secondaryWindow} />
+                  ) : null}
+                </box>
+              )
+            })}
           </box>
-        ) : (
-          <box
-            border
-            borderColor={theme.border}
-            paddingTop={1}
-            paddingBottom={1}
-            paddingLeft={2}
-            paddingRight={2}
-            flexDirection="column"
-            gap={1}
-          >
-            <text fg={theme.textMuted}>No cached usage snapshot yet.</text>
-            <text fg={theme.textMuted}>A live refresh is attempted whenever you run /gpt-usage.</text>
-          </box>
-        )}
+        ) : null}
 
-        <text fg={theme.textMuted}>Uses your existing OpenCode OpenAI login. Env overrides are optional.</text>
+        {snapshot?.rateLimitReachedType ? (
+          <text fg={theme.textMuted}>Reached bucket: {snapshot.rateLimitReachedType}</text>
+        ) : null}
+      </box>
+    </box>
+  )
+}
 
-        <text fg={theme.textMuted}>
-          Optional overrides: {GPT_USAGE_TOKEN_ENV} · {GPT_USAGE_ACCOUNT_ID_ENV}
+function UsageRow(props: { api: TuiPluginApi; label: string; window: UsageWindowSnapshot }) {
+  const theme = props.api.theme.current
+  const remaining = getRemainingPercent(props.window)
+
+  return (
+    <box flexDirection="column">
+      <box flexDirection="row" justifyContent="space-between">
+        <text fg={theme.textMuted}>{props.label}</text>
+
+        <text fg={pickRemainingColor(props.api, remaining)}>
+          <b>{formatRemainingPercent(props.window.usedPercent)}</b>
         </text>
       </box>
-    </Dialog>
+
+      <text fg={theme.textMuted}>resets {formatResetAt(props.window.resetAt)}</text>
+    </box>
   )
 }
 
@@ -198,9 +251,16 @@ function pickStatusColor(api: TuiPluginApi, state: UsageDialogState) {
 }
 
 function selectDialogSize(snapshot?: UsageSnapshot): "medium" | "large" {
-  if (!snapshot) return "medium"
+  if (!snapshot) return "large"
   const lineCount = formatUsageLines(snapshot).length
-  return lineCount > 6 ? "large" : "medium"
+  return lineCount > 4 ? "large" : "medium"
+}
+
+function pickRemainingColor(api: TuiPluginApi, remaining: number | null) {
+  if (remaining === null) return api.theme.current.text
+  if (remaining <= 20) return api.theme.current.error
+  if (remaining <= 50) return api.theme.current.warning
+  return api.theme.current.success
 }
 
 function toMessage(error: unknown): string {
