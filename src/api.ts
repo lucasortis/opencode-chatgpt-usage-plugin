@@ -263,14 +263,18 @@ async function readStoredOpenAIOAuth(): Promise<OpenCodeOAuthAuth | undefined> {
     if (auth) return auth
   }
 
-  const authPath = resolveOpenCodeAuthPath()
-  try {
-    const fileContent = await readFile(authPath, "utf8")
-    const parsed = parseAuthRecord(fileContent)
-    return parseOpenAIOAuthEntry(parsed)
-  } catch {
-    return undefined
+  for (const authPath of resolveOpenCodeAuthPaths()) {
+    try {
+      const fileContent = await readFile(authPath, "utf8")
+      const parsed = parseAuthRecord(fileContent)
+      const auth = parseOpenAIOAuthEntry(parsed)
+      if (auth) return auth
+    } catch {
+      continue
+    }
   }
+
+  return undefined
 }
 
 async function refreshOpenAIOAuthIfNeeded(
@@ -355,24 +359,27 @@ function parseOpenAIOAuthEntry(record: Record<string, unknown> | undefined): Ope
   }
 }
 
-function resolveOpenCodeAuthPath(): string {
+function resolveOpenCodeAuthPaths(): string[] {
   const envDataHome = readOptionalEnv("XDG_DATA_HOME")
   if (envDataHome) {
-    return path.join(envDataHome, "opencode", "auth.json")
+    return [path.join(envDataHome, "opencode", "auth.json")]
   }
 
   const home = homedir()
   switch (process.platform) {
     case "darwin":
-      return path.join(home, "Library", "Application Support", "opencode", "auth.json")
+      return [
+        path.join(home, ".local", "share", "opencode", "auth.json"),
+        path.join(home, "Library", "Application Support", "opencode", "auth.json"),
+      ]
     case "win32": {
       const localAppData = readOptionalEnv("LOCALAPPDATA")
       const appData = readOptionalEnv("APPDATA")
       const base = localAppData ?? appData ?? path.join(home, "AppData", "Local")
-      return path.join(base, "opencode", "auth.json")
+      return [path.join(base, "opencode", "auth.json")]
     }
     default:
-      return path.join(home, ".local", "share", "opencode", "auth.json")
+      return [path.join(home, ".local", "share", "opencode", "auth.json")]
   }
 }
 
