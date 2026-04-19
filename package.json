@@ -1,0 +1,34 @@
+{
+  "name": "opencode-chatgpt-usage-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tui": {
+      "import": "./src/tui.tsx"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": "*",
+    "@opentui/core": "*",
+    "@opentui/solid": "*"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@opencode-ai/plugin": "latest",
+    "@opentui/core": "latest",
+    "@opentui/solid": "latest",
+    "typescript": "6.0.3"
+  },
+  "overrides": {
+    "glob": "13.0.6",
+    "diff": "9.0.0",
+    "jimp": "1.6.1"
+  },
+  "engines": {
+    "opencode": "^1.0.0"
+  }
+}
