@@ -1,6 +1,6 @@
 {
   "name": "@lucasortis/opencode-chatgpt-usage-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "OpenCode TUI plugin that shows ChatGPT usage limits.",
   "license": "UNLICENSED",
   "type": "module",
@@ -38,9 +38,9 @@
     "@opentui/solid": "^0.1.102"
   },
   "devDependencies": {
-    "@types/node": "^24.5.2",
+    "@types/node": "^25.6.0",
     "@opencode-ai/plugin": "^1.14.19",
-    "@opentui/core": "^0.1.100",
+    "@opentui/core": "^0.1.102",
     "@opentui/solid": "^0.1.102",
     "tsx": "^4.20.6",
     "tsup": "^8.5.0",

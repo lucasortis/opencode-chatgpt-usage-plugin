@@ -13,6 +13,8 @@
 - Keep `exports["./tui"]` pointing at the built JavaScript entrypoint.
 - Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run pack:check` before release changes are finalized.
 - Package publication should happen through the GitHub Actions release workflow when possible.
+- After creating a new release, test the released package in OpenCode before considering the release finalized.
+- Use the BTCA Local workflow against the local `opencode` repository when you need to inspect loader/runtime behavior while validating a release.
 
 ## Testing policy
 
