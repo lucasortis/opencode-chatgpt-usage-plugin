@@ -1,27 +1,48 @@
 {
-  "name": "opencode-chatgpt-usage-plugin",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@lucasortis/opencode-chatgpt-usage-plugin",
+  "version": "0.0.1",
+  "description": "OpenCode TUI plugin that shows ChatGPT usage limits.",
+  "license": "UNLICENSED",
   "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
   "exports": {
     "./tui": {
-      "import": "./src/tui.tsx"
+      "types": "./dist/tui.d.ts",
+      "import": "./dist/tui.js"
     }
   },
+  "types": "./dist/tui.d.ts",
   "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "npm run test && npm run build",
+    "pretest": "npm run build",
+    "test": "node --import tsx --test test/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
-  "peerDependencies": {
-    "@opencode-ai/plugin": "*",
-    "@opentui/core": "*",
-    "@opentui/solid": "*"
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/lucasortis/opencode-chatgpt-usage-plugin.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {
+    "@opentui/solid": "^0.1.100"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@opencode-ai/plugin": "latest",
-    "@opentui/core": "latest",
-    "@opentui/solid": "latest",
-    "typescript": "6.0.3"
+    "@types/node": "^24.5.2",
+    "@opencode-ai/plugin": "^1.14.17",
+    "@opentui/core": "^0.1.100",
+    "@opentui/solid": "^0.1.100",
+    "tsx": "^4.20.6",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.2"
   },
   "overrides": {
     "glob": "13.0.6",

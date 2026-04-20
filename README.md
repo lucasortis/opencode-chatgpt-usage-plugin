@@ -43,6 +43,18 @@ Type-check:
 npm run typecheck
 ```
 
+Run tests:
+
+```bash
+npm test
+```
+
+Build the distributable package:
+
+```bash
+npm run build
+```
+
 ## Load in OpenCode
 
 ### Option A: local file plugin
@@ -58,7 +70,60 @@ Add the plugin module path to `tui.json`:
 }
 ```
 
-### Option B: project-local config
+### Option B: private remote package
+
+This repository is now prepared to be published privately through GitHub Packages.
+
+1. Publish the package from this repository:
+
+```bash
+npm install
+npm test
+npm run build
+npm publish
+```
+
+2. Add GitHub Packages auth to your global `~/.npmrc` so OpenCode can install the private package from its cache directory:
+
+```ini
+@lucasortis:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+```
+
+Use a GitHub token with at least:
+
+- `read:packages` to install the package in OpenCode
+- `write:packages` to publish new versions
+
+3. Reference the package in `~/.config/opencode/tui.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": [
+    "@lucasortis/opencode-chatgpt-usage-plugin"
+  ]
+}
+```
+
+### Automatic publishing with GitHub Actions
+
+This repository now includes:
+
+- `CI` workflow for install, typecheck, test, build, and `npm pack --dry-run`
+- `Publish package` workflow that publishes automatically when you publish a GitHub Release
+- `Dependabot` updates for npm dependencies and GitHub Actions
+
+Recommended release flow:
+
+```bash
+npm version patch
+git push --follow-tags
+```
+
+Then publish a GitHub Release for the new tag. The publish workflow will build, test, and publish the package to GitHub Packages automatically.
+
+### Option C: project-local config
 
 If you only want it enabled for one repo, add the same plugin path to that repo's `.opencode/tui.json` instead of your global OpenCode config.
 
@@ -72,9 +137,15 @@ Credits: Unlimited
 Image generation: 80% left · resets Apr 19, 18:00
 ```
 
+## Package notes
+
+- `private: true` was removed from `package.json` because npm uses that flag to block publishing entirely
+- the distributed entrypoint is built into `dist/tui.js`
+- the package is intended for private distribution through GitHub Packages, not the public npm registry
+
 ## Notes
 
 - this is ChatGPT plan usage, not OpenAI API billing usage
 - expired or disconnected OpenCode OpenAI sessions return a clear error in the dialog
 - optional override token values are never logged by the plugin
-- this project is local-only and should never be published to npm
+- this project should stay private even though it is now publishable as a package
