@@ -34,3 +34,4 @@
 
 - Each new completed change should be committed promptly instead of being left uncommitted.
 - Keep commits focused and descriptive so the repository history stays easy to follow.
+- After creating a commit for a completed change, push it promptly so the remote stays in sync.
