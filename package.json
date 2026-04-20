@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.5.2",
-    "@opencode-ai/plugin": "^1.14.17",
+    "@opencode-ai/plugin": "^1.14.19",
     "@opentui/core": "^0.1.100",
     "@opentui/solid": "^0.1.100",
     "tsx": "^4.20.6",
