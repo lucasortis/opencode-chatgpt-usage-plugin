@@ -1,6 +1,6 @@
 {
   "name": "@lucasortis/opencode-chatgpt-usage-plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "OpenCode TUI plugin that shows ChatGPT usage limits.",
   "license": "UNLICENSED",
   "type": "module",
@@ -12,13 +12,13 @@
   "exports": {
     "./tui": {
       "types": "./dist/tui.d.ts",
-      "import": "./dist/tui.js"
+      "import": "./dist/tui.jsx"
     }
   },
   "types": "./dist/tui.d.ts",
   "scripts": {
-    "build": "npm run build:js && npm run build:types",
-    "build:js": "tsup",
+    "build": "npm run clean && npm run build:runtime && npm run build:types",
+    "build:runtime": "tsc -p tsconfig.runtime.json",
     "build:types": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "pack:check": "npm pack --dry-run",
@@ -43,7 +43,6 @@
     "@opentui/core": "^0.1.102",
     "@opentui/solid": "^0.1.102",
     "tsx": "^4.20.6",
-    "tsup": "^8.5.0",
     "typescript": "^6.0.3"
   },
   "overrides": {

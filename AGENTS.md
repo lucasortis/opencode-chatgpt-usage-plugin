@@ -10,7 +10,7 @@
 ## Packaging and release policy
 
 - The published artifact must come from `dist/`.
-- Keep `exports["./tui"]` pointing at the built JavaScript entrypoint.
+- Keep `exports["./tui"]` pointing at the built TUI entrypoint under `dist/`.
 - Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run pack:check` before release changes are finalized.
 - Package publication should happen through the GitHub Actions release workflow when possible.
 - After creating a new release, test the released package in OpenCode before considering the release finalized.
