@@ -29,3 +29,8 @@
 
 - Keep the package version aligned with the Git tag/release version.
 - Use semver tags like `v0.0.1` for GitHub releases.
+
+## Commit policy
+
+- Each new completed change should be committed promptly instead of being left uncommitted.
+- Keep commits focused and descriptive so the repository history stays easy to follow.

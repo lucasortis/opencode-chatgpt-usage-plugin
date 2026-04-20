@@ -17,7 +17,9 @@
   },
   "types": "./dist/tui.d.ts",
   "scripts": {
-    "build": "tsup",
+    "build": "npm run build:js && npm run build:types",
+    "build:js": "tsup",
+    "build:types": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "pack:check": "npm pack --dry-run",
     "prepublishOnly": "npm run test && npm run build",
@@ -42,7 +44,7 @@
     "@opentui/solid": "^0.1.100",
     "tsx": "^4.20.6",
     "tsup": "^8.5.0",
-    "typescript": "^5.8.2"
+    "typescript": "^6.0.3"
   },
   "overrides": {
     "glob": "13.0.6",
