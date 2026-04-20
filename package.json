@@ -38,7 +38,7 @@
     "@opentui/solid": "^0.1.102"
   },
   "devDependencies": {
-    "@types/node": "^24.5.2",
+    "@types/node": "^25.6.0",
     "@opencode-ai/plugin": "^1.14.19",
     "@opentui/core": "^0.1.100",
     "@opentui/solid": "^0.1.102",
