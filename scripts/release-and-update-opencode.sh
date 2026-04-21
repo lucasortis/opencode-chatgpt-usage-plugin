@@ -150,6 +150,15 @@ npm view "$PACKAGE_NAME@$NEW_VERSION" version --registry=https://npm.pkg.github.
 echo "==> Updating OpenCode cache with $PACKAGE_NAME@$NEW_VERSION"
 rm -rf "$CACHE_DIR"
 mkdir -p "$CACHE_DIR"
+cat > "$CACHE_DIR/package.json" <<EOF
+{
+  "name": "opencode-plugin-cache-bootstrap",
+  "private": true,
+  "overrides": {
+    "glob": "13.0.6"
+  }
+}
+EOF
 npm install --prefix "$CACHE_DIR" "$PACKAGE_NAME@$NEW_VERSION"
 
 echo "==> Updating local BTCA opencode clone"
