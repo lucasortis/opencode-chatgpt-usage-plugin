@@ -21,6 +21,8 @@
     "build:runtime": "tsc -p tsconfig.runtime.json",
     "build:types": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
+    "opencode:plugin:local": "node ./scripts/set-opencode-plugin-source.mjs local",
+    "opencode:plugin:package": "node ./scripts/set-opencode-plugin-source.mjs package",
     "pack:check": "npm pack --dry-run",
     "prepublishOnly": "npm run test && npm run build",
     "pretest": "npm run build",

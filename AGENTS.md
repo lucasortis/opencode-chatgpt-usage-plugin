@@ -12,6 +12,9 @@
 - The published artifact must come from `dist/`.
 - Keep `exports["./tui"]` pointing at the built TUI entrypoint under `dist/`.
 - Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run pack:check` before release changes are finalized.
+- For local OpenCode testing without a release, use `npm run opencode:plugin:local` to point `~/.config/opencode/tui.json` at the local `src/tui.tsx` entrypoint.
+- To switch OpenCode back to the published GitHub Packages plugin, use `npm run opencode:plugin:package`.
+- Reload or restart OpenCode after switching plugin sources.
 - Package publication should happen through the GitHub Actions release workflow when possible.
 - After creating a new release, test the released package in OpenCode before considering the release finalized.
 - Use the BTCA Local workflow against the local `opencode` repository when you need to inspect loader/runtime behavior while validating a release.
