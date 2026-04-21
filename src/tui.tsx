@@ -8,6 +8,7 @@ import {
 } from "./api.js"
 import {
   formatPlanType,
+  formatRemainingBar,
   formatRemainingPercent,
   formatResetAt,
   formatSnapshotTime,
@@ -156,8 +157,8 @@ function UsageDialog(props: { api: TuiPluginApi; state: UsageDialogState; onClos
 
           {snapshot ? (
             <box flexDirection="column" gap={1} paddingTop={1}>
-              {primaryWindow ? <UsageRow api={props.api} label="5h limit" window={primaryWindow} /> : null}
-              {secondaryWindow ? <UsageRow api={props.api} label="Weekly limit" window={secondaryWindow} /> : null}
+              {primaryWindow ? <UsageRow api={props.api} label="5h limit" window={primaryWindow} showBar /> : null}
+              {secondaryWindow ? <UsageRow api={props.api} label="Weekly limit" window={secondaryWindow} showBar /> : null}
             </box>
           ) : (
             <box flexDirection="column" gap={1} paddingTop={1}>
@@ -205,18 +206,28 @@ function UsageDialog(props: { api: TuiPluginApi; state: UsageDialogState; onClos
   )
 }
 
-function UsageRow(props: { api: TuiPluginApi; label: string; window: UsageWindowSnapshot }) {
+function UsageRow(props: { api: TuiPluginApi; label: string; window: UsageWindowSnapshot; showBar?: boolean }) {
   const theme = props.api.theme.current
   const remaining = getRemainingPercent(props.window)
 
   return (
     <box flexDirection="column">
-      <box flexDirection="row" justifyContent="space-between">
+      <box flexDirection="row" justifyContent="space-between" alignItems="center">
         <text fg={theme.textMuted}>{props.label}</text>
 
-        <text fg={pickRemainingColor(props.api, remaining)}>
-          <b>{formatRemainingPercent(props.window.usedPercent)}</b>
-        </text>
+        {props.showBar ? (
+          <box flexDirection="row" alignItems="center" gap={1}>
+            <text fg={theme.textMuted}>{formatRemainingBar(props.window.usedPercent)}</text>
+
+            <text fg={pickRemainingColor(props.api, remaining)}>
+              <b>{formatRemainingPercent(props.window.usedPercent)}</b>
+            </text>
+          </box>
+        ) : (
+          <text fg={pickRemainingColor(props.api, remaining)}>
+            <b>{formatRemainingPercent(props.window.usedPercent)}</b>
+          </text>
+        )}
       </box>
 
       <text fg={theme.textMuted}>resets {formatResetAt(props.window.resetAt)}</text>

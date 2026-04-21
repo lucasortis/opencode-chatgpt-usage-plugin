@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import {
   formatPlanType,
+  formatRemainingBar,
   formatRemainingPercent,
   formatResetAt,
   formatUsageLines,
@@ -19,6 +20,12 @@ test("getRemainingPercent and formatRemainingPercent handle known and unknown us
   assert.equal(getRemainingPercent({ usedPercent: null, resetAt: 1_744_000_000 }), null)
   assert.equal(formatRemainingPercent(41.5), "58.5% left")
   assert.equal(formatRemainingPercent(null), "Unknown usage")
+})
+
+test("formatRemainingBar renders a compact progress bar", () => {
+  assert.equal(formatRemainingBar(25, 8), "██████░░")
+  assert.equal(formatRemainingBar(100, 8), "░░░░░░░░")
+  assert.equal(formatRemainingBar(null, 8), "░░░░░░░░")
 })
 
 test("formatResetAt returns a readable date when reset time is valid", () => {
