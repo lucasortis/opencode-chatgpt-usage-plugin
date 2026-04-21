@@ -55,6 +55,20 @@ Build the distributable package:
 npm run build
 ```
 
+One-shot release and local OpenCode update:
+
+```bash
+npm run release:update-opencode
+```
+
+Optional version bump inputs:
+
+```bash
+npm run release:update-opencode -- patch
+npm run release:update-opencode -- minor
+npm run release:update-opencode -- 0.0.4
+```
+
 ## Load in OpenCode
 
 ### Option A: local file plugin
@@ -123,6 +137,17 @@ git push --follow-tags
 
 Then publish a GitHub Release for the new tag. The publish workflow will build, test, and publish the package to GitHub Packages automatically.
 
+If you want one command to do all of this, use `npm run release:update-opencode`. It will:
+
+1. bump the version
+2. run typecheck, tests, build, and pack checks
+3. commit and push `main`
+4. wait for CI to pass
+5. create the GitHub release
+6. wait for the publish workflow to finish
+7. prewarm the local OpenCode cache with the published package
+8. smoke-test the published plugin against the local BTCA `opencode` clone
+
 ### Option C: project-local config
 
 If you only want it enabled for one repo, add the same plugin path to that repo's `.opencode/tui.json` instead of your global OpenCode config.
@@ -140,7 +165,7 @@ Image generation: 80% left · resets Apr 19, 18:00
 ## Package notes
 
 - `private: true` was removed from `package.json` because npm uses that flag to block publishing entirely
-- the distributed entrypoint is built into `dist/tui.js`
+- the distributed entrypoint is built into `dist/tui.jsx`
 - the package is intended for private distribution through GitHub Packages, not the public npm registry
 
 ## Notes
