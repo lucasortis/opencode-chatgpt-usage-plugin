@@ -1,43 +1,58 @@
 # AGENTS.md
 
-## Project rules
+## Code style
 
-- This plugin is intended for **private distribution only**.
-- Publish it only to **GitHub Packages** under the `@lucasortis` scope.
-- Do **not** publish this project to the public npm registry.
-- Keep the repository private unless explicitly changed by the owner.
+- Functions: 4-20 lines. Split if longer.
+- Files: under 500 lines. Split by responsibility.
+- One thing per function, one responsibility per module (SRP).
+- Names: specific and unique. Avoid `data`, `handler`, `Manager`.
+  Prefer names that return <5 grep hits in the codebase.
+- Types: explicit. No `any`, no `Dict`, no untyped functions.
+- No code duplication. Extract shared logic into a function/module.
+- Early returns over nested ifs. Max 2 levels of indentation.
+- Exception messages must include the offending value and expected shape.
 
-## Packaging and release policy
+## Comments
 
-- The published artifact must come from `dist/`.
-- Keep `exports["./tui"]` pointing at the built TUI entrypoint under `dist/`.
-- Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run pack:check` before release changes are finalized.
-- For local OpenCode testing without a release, use `npm run opencode:plugin:local` to point `~/.config/opencode/tui.json` at the local `src/tui.tsx` entrypoint.
-- To switch OpenCode back to the published GitHub Packages plugin, use `npm run opencode:plugin:package`.
-- Reload or restart OpenCode after switching plugin sources.
-- Package publication should happen through the GitHub Actions release workflow when possible.
-- After creating a new release, test the released package in OpenCode before considering the release finalized.
-- Use the BTCA Local workflow against the local `opencode` repository when you need to inspect loader/runtime behavior while validating a release.
+- Keep your own comments. Don't strip them on refactor - they carry
+  intent and provenance.
+- Write WHY, not WHAT. Skip `// increment counter` above `i++`.
+- Docstrings on public functions: intent + one usage example.
+- Reference issue numbers / commit SHAs when a line exists because
+  of a specific bug or upstream constraint.
 
-## Testing policy
+## Tests
 
-- Keep lightweight automated tests for stable logic such as formatting, parsing, cache helpers, and packaging checks.
-- Avoid brittle runtime tests that require the full OpenCode/Bun host unless they are explicitly scoped as integration tests.
+- Tests run with a single command: `npm test`.
+- Every new function gets a test. Bug fixes get a regression test.
+- Mock external I/O (API, DB, filesystem) with named fake classes,
+  not inline stubs.
+- Tests must be F.I.R.S.T: fast, independent, repeatable,
+  self-validating, timely.
 
-## Dependency policy
+## Dependencies
 
-- Keep dependencies and GitHub Actions updated through Dependabot and normal maintenance.
-- Prefer the newest stable versions that work with local type-checking, tests, and packaging.
-- If a warning comes from a transitive dependency, prefer `overrides` instead of adding extra direct runtime dependencies unless a direct dependency is actually needed.
+- Inject dependencies through constructor/parameter, not global/import.
+- Wrap third-party libs behind a thin interface owned by this project.
 
-## Release versioning
+## Structure
 
-- Keep the package version aligned with the Git tag/release version.
-- Use semver tags like `v0.0.1` for GitHub releases.
+- Follow the framework's convention (Rails, Django, Next.js, etc.).
+- Prefer small focused modules over god files.
+- Predictable paths: controller/model/view, src/lib/test, etc.
+
+## Formatting
+
+- Use the language default formatter (`cargo fmt`, `gofmt`, `prettier`,
+  `black`, `rubocop -A`). Don't discuss style beyond that.
+
+## Logging
+
+- Structured JSON when logging for debugging / observability.
+- Plain text only for user-facing CLI output.
 
 ## Commit policy
 
-- Each new completed change should be committed promptly instead of being left uncommitted.
-- Keep commits focused and descriptive so the repository history stays easy to follow.
-- After creating a commit for a completed change, push it promptly so the remote stays in sync.
-- After any push, check the GitHub Actions CI status and confirm whether it passed.
+- After every new edit, the agent must create a git commit.
+- Do not leave completed edits uncommitted.
+- Keep commits focused and descriptive.
