@@ -128,7 +128,7 @@ npm run release:package -- patch
 git push origin main --tags
 ```
 
-Publishing is handled by the `Publish package` GitHub Actions workflow when a GitHub Release is published. Configure the repository secret `NPM_TOKEN` with an npm token that can publish `@lucasortis/opencode-chatgpt-usage-plugin`.
+Publishing is handled by the `Publish package` GitHub Actions workflow when a GitHub Release is published. Configure npm Trusted Publishing for this repository instead of storing an npm token in GitHub secrets.
 
 Manual publishing is also available:
 
