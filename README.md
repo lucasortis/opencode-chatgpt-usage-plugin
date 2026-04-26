@@ -154,13 +154,8 @@ If OpenCode does not show `/gpt-usage`, restart or reload OpenCode and confirm t
 
 ## Example Output
 
-```text
-Plan: pro
-5h limit: 42% left · resets Apr 19, 14:30
-Weekly limit: 68% left · resets Apr 22, 09:00
-Credits: Unlimited
-Image generation: 80% left · resets Apr 19, 18:00
-```
+<img width="748" height="595" alt="image" src="https://github.com/user-attachments/assets/32a4126b-ee1f-42f2-8bda-64ce3b00099d" />
+
 
 ## Contributing
 
