@@ -20,7 +20,7 @@
     "LICENSE"
   ],
   "bin": {
-    "opencode-chatgpt-usage-plugin": "./bin/opencode-chatgpt-usage-plugin.mjs"
+    "opencode-chatgpt-usage-plugin": "bin/opencode-chatgpt-usage-plugin.mjs"
   },
   "exports": {
     "./tui": {
