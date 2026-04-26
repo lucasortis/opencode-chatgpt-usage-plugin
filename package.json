@@ -2,13 +2,25 @@
   "name": "@lucasortis/opencode-chatgpt-usage-plugin",
   "version": "0.0.4",
   "description": "OpenCode TUI plugin that shows ChatGPT usage limits.",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "sideEffects": false,
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "chatgpt",
+    "usage-limits",
+    "tui"
+  ],
   "files": [
     "dist/**/*",
-    "README.md"
+    "scripts/install-opencode-plugin.mjs",
+    "README.md",
+    "LICENSE"
   ],
+  "bin": {
+    "opencode-chatgpt-usage-plugin": "./scripts/install-opencode-plugin.mjs"
+  },
   "exports": {
     "./tui": {
       "types": "./dist/tui.d.ts",
@@ -21,21 +33,28 @@
     "build:runtime": "tsc -p tsconfig.runtime.json",
     "build:types": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
-    "opencode:plugin:local": "node ./scripts/set-opencode-plugin-source.mjs local",
-    "opencode:plugin:package": "node ./scripts/set-opencode-plugin-source.mjs package",
+    "opencode:plugin:local": "node ./scripts/install-opencode-plugin.mjs install local",
+    "opencode:plugin:package": "node ./scripts/install-opencode-plugin.mjs install package",
     "pack:check": "npm pack --dry-run",
     "prepublishOnly": "npm run test && npm run build",
     "pretest": "npm run build",
-    "release:update-opencode": "bash ./scripts/release-and-update-opencode.sh",
+    "release:package": "bash ./scripts/release-package.sh",
+    "publish:package": "bash ./scripts/publish-package.sh",
+    "smoke:install": "node ./scripts/smoke-test-package.mjs",
     "test": "node --import tsx --test test/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/lucasortis/opencode-chatgpt-usage-plugin.git"
+    "url": "git+https://github.com/lucasortis/opencode-chatgpt-usage-plugin.git"
+  },
+  "homepage": "https://github.com/lucasortis/opencode-chatgpt-usage-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/lucasortis/opencode-chatgpt-usage-plugin/issues"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "dependencies": {
     "@opentui/solid": "^0.1.102"

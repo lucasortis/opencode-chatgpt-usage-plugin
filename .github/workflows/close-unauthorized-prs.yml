@@ -1,0 +1,49 @@
+name: Close unauthorized PRs
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  close:
+    if: github.actor != 'lucasortis' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Close pull request
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const issue_number = context.payload.pull_request.number
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: "Obrigado pela contribuicao. Este repositorio nao aceita pull requests externas no momento. Abra uma issue descrevendo a sugestao e, se fizer sentido, a mudanca sera implementada internamente.",
+            })
+
+            try {
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number,
+                labels: ["unauthorized-pr"],
+              })
+            } catch (error) {
+              core.warning(`Unable to add label: ${error.message}`)
+            }
+
+            await github.rest.pulls.update({
+              owner,
+              repo,
+              pull_number: issue_number,
+              state: "closed",
+            })
