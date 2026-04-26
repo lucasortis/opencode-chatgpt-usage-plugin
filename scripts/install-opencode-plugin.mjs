@@ -285,7 +285,7 @@ function readRequiredValue(argv, index, name) {
   return value
 }
 
-async function main() {
+export async function cliMain() {
   const args = parseArgs(process.argv.slice(2))
   if (args.command === "install") printInstall(await installOpenCodePlugin(args))
   if (args.command === "uninstall") printUninstall(await uninstallOpenCodePlugin(args))
@@ -324,7 +324,7 @@ function printDoctor(result) {
 const isMainModule = process.argv[1] ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) : false
 
 if (isMainModule) {
-  main().catch((error) => {
+  cliMain().catch((error) => {
     console.error(formatError(error))
     console.error("Usage: opencode-chatgpt-usage-plugin [install|uninstall|doctor] [--config /path/to/tui.json] [--plugin spec]")
     process.exitCode = 1
