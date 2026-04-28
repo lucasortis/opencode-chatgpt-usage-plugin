@@ -10,7 +10,7 @@ on:
 jobs:
   close:
     if: github.actor != 'lucasortis' && github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: homelab
     permissions:
       issues: write
       pull-requests: write
