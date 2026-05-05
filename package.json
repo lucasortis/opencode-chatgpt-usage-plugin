@@ -1,6 +1,6 @@
 {
   "name": "@lucasortis/opencode-chatgpt-usage-plugin",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "OpenCode TUI plugin that shows ChatGPT usage limits.",
   "license": "MIT",
   "type": "module",
