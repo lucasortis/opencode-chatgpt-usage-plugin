@@ -7,8 +7,10 @@ import { fileURLToPath } from "node:url"
 
 const DEFAULT_SCHEMA = "https://opencode.ai/tui.json"
 const PACKAGE_JSON_URL = new URL("../package.json", import.meta.url)
+const PACKAGE_JSON = JSON.parse(await readFile(PACKAGE_JSON_URL, "utf8"))
 
-export const PACKAGE_PLUGIN_SPEC = JSON.parse(await readFile(PACKAGE_JSON_URL, "utf8")).name
+export const PACKAGE_PLUGIN_NAME = PACKAGE_JSON.name
+export const PACKAGE_PLUGIN_SPEC = `${PACKAGE_JSON.name}@${PACKAGE_JSON.version}`
 export const LOCAL_PLUGIN_PATH = path.resolve(fileURLToPath(new URL("../dist/tui.jsx", import.meta.url)))
 export const DEFAULT_CONFIG_PATH = path.join(homedir(), ".config", "opencode", "tui.json")
 
@@ -65,8 +67,9 @@ export async function installOpenCodePlugin(options = {}) {
   const pluginEntry = options.pluginEntry ?? PACKAGE_PLUGIN_SPEC
   const existingConfig = await readOpenCodeConfig(configPath)
   const existingPlugins = readPluginArray(existingConfig, configPath)
-  const changed = !existingPlugins.includes(pluginEntry)
-  const nextPlugins = changed ? [...existingPlugins, pluginEntry] : existingPlugins
+  const preservedPlugins = removeManagedPackageEntries(existingPlugins, pluginEntry)
+  const nextPlugins = preservedPlugins.includes(pluginEntry) ? preservedPlugins : [...preservedPlugins, pluginEntry]
+  const changed = nextPlugins.join("\0") !== existingPlugins.join("\0")
 
   await writeOpenCodeConfig(configPath, { ...existingConfig, $schema: readSchema(existingConfig), plugin: nextPlugins })
   return { configPath, pluginEntry, changed }
@@ -88,7 +91,7 @@ export async function uninstallOpenCodePlugin(options = {}) {
   const pluginEntry = options.pluginEntry ?? PACKAGE_PLUGIN_SPEC
   const existingConfig = await readOpenCodeConfig(configPath)
   const existingPlugins = readPluginArray(existingConfig, configPath)
-  const nextPlugins = existingPlugins.filter((plugin) => plugin !== pluginEntry)
+  const nextPlugins = removeManagedPackageEntries(existingPlugins, pluginEntry)
 
   await writeOpenCodeConfig(configPath, { ...existingConfig, $schema: readSchema(existingConfig), plugin: nextPlugins })
   return { configPath, pluginEntry, changed: nextPlugins.length !== existingPlugins.length }
@@ -127,7 +130,39 @@ export async function inspectOpenCodePlugin(options = {}) {
  * @param {string} [configPath]
  */
 export async function configureOpenCodePluginSource(source, configPath = DEFAULT_CONFIG_PATH) {
-  return installOpenCodePlugin({ configPath, pluginEntry: resolvePluginEntry(source) })
+  const pluginEntry = resolvePluginEntry(source)
+  const existingConfig = await readOpenCodeConfig(configPath)
+  const existingPlugins = readPluginArray(existingConfig, configPath)
+  const preservedPlugins = existingPlugins.filter((plugin) => !isManagedPluginEntry(plugin))
+  const nextPlugins = [...preservedPlugins, pluginEntry]
+  const changed = nextPlugins.join("\0") !== existingPlugins.join("\0")
+
+  await writeOpenCodeConfig(configPath, { ...existingConfig, $schema: readSchema(existingConfig), plugin: nextPlugins })
+  return { configPath, pluginEntry, changed }
+}
+
+/**
+ * @param {string[]} plugins
+ * @param {string} pluginEntry
+ */
+function removeManagedPackageEntries(plugins, pluginEntry) {
+  if (pluginEntry !== PACKAGE_PLUGIN_SPEC) return plugins.filter((plugin) => plugin !== pluginEntry)
+  return plugins.filter((plugin) => !isPackagePluginEntry(plugin))
+}
+
+/**
+ * @param {string} plugin
+ */
+function isManagedPluginEntry(plugin) {
+  return plugin === LOCAL_PLUGIN_PATH || isPackagePluginEntry(plugin)
+}
+
+/**
+ * @param {string} plugin
+ */
+function isPackagePluginEntry(plugin) {
+  if (plugin === PACKAGE_PLUGIN_NAME) return true
+  return plugin.startsWith(`${PACKAGE_PLUGIN_NAME}@`)
 }
 
 /**

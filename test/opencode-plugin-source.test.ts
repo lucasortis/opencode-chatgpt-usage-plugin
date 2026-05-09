@@ -69,6 +69,23 @@ test("installOpenCodePlugin is idempotent", async () => {
   assert.deepEqual(config.plugin, [PACKAGE_PLUGIN_SPEC])
 })
 
+test("configureOpenCodePluginSource replaces stale managed entries", async () => {
+  const tempDir = await mkdtemp(path.join(tmpdir(), "opencode-plugin-source-"))
+  const configPath = path.join(tempDir, "tui.json")
+
+  await writeFile(
+    configPath,
+    JSON.stringify({ plugin: ["old-plugin", LOCAL_PLUGIN_PATH, "@lucasortis/opencode-chatgpt-usage-plugin"] }),
+    "utf8",
+  )
+
+  const result = await configureOpenCodePluginSource("package", configPath)
+  const config = JSON.parse(await readFile(configPath, "utf8"))
+
+  assert.equal(result.changed, true)
+  assert.deepEqual(config.plugin, ["old-plugin", PACKAGE_PLUGIN_SPEC])
+})
+
 test("installOpenCodePlugin fails clearly for invalid JSON", async () => {
   const tempDir = await mkdtemp(path.join(tmpdir(), "opencode-plugin-source-"))
   const configPath = path.join(tempDir, "tui.json")
