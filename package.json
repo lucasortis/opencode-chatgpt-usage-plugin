@@ -58,11 +58,12 @@
     "access": "public"
   },
   "dependencies": {
-    "@opentui/solid": "^0.2.2"
+    "@opentui/keymap": "^0.2.6",
+    "@opentui/solid": "^0.2.6"
   },
   "devDependencies": {
-    "@opencode-ai/plugin": "^1.14.39",
-    "@opentui/core": "^0.2.2",
+    "@opencode-ai/plugin": "^1.14.44",
+    "@opentui/core": "^0.2.6",
     "@types/node": "^25.6.0",
     "tsx": "^4.20.6",
     "typescript": "^6.0.3"

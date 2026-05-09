@@ -31,21 +31,24 @@ type UsageDialogState = {
 }
 
 const tui: TuiPlugin = async (api) => {
-  api.command.register(() => [
-    {
-      title: "GPT usage",
-      value: commandValue,
-      description: "Show ChatGPT plan usage limits",
-      category: "Plugin",
-      slash: {
-        name: "gpt-usage",
-        aliases: ["usage"],
+  const unregisterUsageCommand = api.keymap.registerLayer({
+    commands: [
+      {
+        name: commandValue,
+        title: "GPT usage",
+        desc: "Show ChatGPT plan usage limits",
+        category: "Plugin",
+        namespace: "palette",
+        slashName: "gpt-usage",
+        slashAliases: ["usage"],
+        run: () => {
+          void openUsageDialog(api)
+        },
       },
-      onSelect: () => {
-        void openUsageDialog(api)
-      },
-    },
-  ])
+    ],
+  })
+
+  api.lifecycle.onDispose(unregisterUsageCommand)
 }
 
 async function openUsageDialog(api: TuiPluginApi): Promise<void> {

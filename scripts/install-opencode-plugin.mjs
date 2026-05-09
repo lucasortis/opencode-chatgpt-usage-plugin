@@ -9,7 +9,7 @@ const DEFAULT_SCHEMA = "https://opencode.ai/tui.json"
 const PACKAGE_JSON_URL = new URL("../package.json", import.meta.url)
 
 export const PACKAGE_PLUGIN_SPEC = JSON.parse(await readFile(PACKAGE_JSON_URL, "utf8")).name
-export const LOCAL_PLUGIN_PATH = path.resolve(fileURLToPath(new URL("../src/tui.tsx", import.meta.url)))
+export const LOCAL_PLUGIN_PATH = path.resolve(fileURLToPath(new URL("../dist/tui.jsx", import.meta.url)))
 export const DEFAULT_CONFIG_PATH = path.join(homedir(), ".config", "opencode", "tui.json")
 
 /**
