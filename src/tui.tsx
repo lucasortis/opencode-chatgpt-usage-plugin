@@ -8,11 +8,10 @@ import {
 } from "./api.js"
 import {
   formatPlanType,
-  formatRemainingBar,
   formatRemainingPercent,
   formatResetAt,
   formatSnapshotTime,
-  formatUsageLines,
+  getRemainingBarSegments,
   getRemainingPercent,
 } from "./format.js"
 import type { UsageSnapshot, UsageWindowSnapshot } from "./types.js"
@@ -78,7 +77,7 @@ async function openUsageDialog(api: TuiPluginApi): Promise<void> {
   const render = (state: UsageDialogState) => {
     if (closed || requestController.signal.aborted || requestID !== activeRequestID) return
 
-    api.ui.dialog.setSize(selectDialogSize(state.snapshot))
+    api.ui.dialog.setSize(selectDialogSize())
     api.ui.dialog.replace(() => <UsageDialog api={api} state={state} onClose={dismiss} />, release)
   }
 
@@ -132,7 +131,7 @@ function UsageDialog(props: { api: TuiPluginApi; state: UsageDialogState; onClos
 
   return (
     <box flexDirection="column" gap={1} paddingLeft={2} paddingRight={2} paddingBottom={1} width="100%" alignItems="center">
-      <box flexDirection="column" gap={1} width="100%" maxWidth={72}>
+      <box flexDirection="column" gap={1} width="100%" maxWidth={88}>
         <box flexDirection="row" justifyContent="space-between">
           <text fg={theme.text}>
             <b>ChatGPT usage</b>
@@ -212,25 +211,45 @@ function UsageDialog(props: { api: TuiPluginApi; state: UsageDialogState; onClos
 function UsageRow(props: { api: TuiPluginApi; label: string; window: UsageWindowSnapshot; showBar?: boolean }) {
   const theme = props.api.theme.current
   const remaining = getRemainingPercent(props.window)
+  const bar = getRemainingBarSegments(props.window.usedPercent)
+
+  if (props.showBar) {
+    return (
+      <box flexDirection="column">
+        <box flexDirection="row" alignItems="center">
+          <text fg={theme.textMuted} width={24} wrapMode="none">
+            {props.label}
+          </text>
+
+          <box flexDirection="row" width={12} height={1}>
+            {bar.filledWidth > 0 ? (
+              <text bg={theme.textMuted}>{" ".repeat(bar.filledWidth)}</text>
+            ) : null}
+            {bar.emptyWidth > 0 ? (
+              <text bg={theme.border}>{" ".repeat(bar.emptyWidth)}</text>
+            ) : null}
+          </box>
+
+          <box width={2} />
+
+          <text fg={pickRemainingColor(props.api, remaining)} width={10} wrapMode="none">
+            <b>{formatRemainingPercent(props.window.usedPercent)}</b>
+          </text>
+        </box>
+
+        <text fg={theme.textMuted}>resets {formatResetAt(props.window.resetAt)}</text>
+      </box>
+    )
+  }
 
   return (
     <box flexDirection="column">
       <box flexDirection="row" justifyContent="space-between" alignItems="center">
         <text fg={theme.textMuted}>{props.label}</text>
 
-        {props.showBar ? (
-          <box flexDirection="row" alignItems="center" gap={1}>
-            <text fg={theme.textMuted}>{formatRemainingBar(props.window.usedPercent)}</text>
-
-            <text fg={pickRemainingColor(props.api, remaining)}>
-              <b>{formatRemainingPercent(props.window.usedPercent)}</b>
-            </text>
-          </box>
-        ) : (
-          <text fg={pickRemainingColor(props.api, remaining)}>
-            <b>{formatRemainingPercent(props.window.usedPercent)}</b>
-          </text>
-        )}
+        <text fg={pickRemainingColor(props.api, remaining)}>
+          <b>{formatRemainingPercent(props.window.usedPercent)}</b>
+        </text>
       </box>
 
       <text fg={theme.textMuted}>resets {formatResetAt(props.window.resetAt)}</text>
@@ -264,10 +283,8 @@ function pickStatusColor(api: TuiPluginApi, state: UsageDialogState) {
   return state.snapshot ? api.theme.current.warning : api.theme.current.error
 }
 
-function selectDialogSize(snapshot?: UsageSnapshot): "medium" | "large" {
-  if (!snapshot) return "large"
-  const lineCount = formatUsageLines(snapshot).length
-  return lineCount > 4 ? "large" : "medium"
+function selectDialogSize(): "large" {
+  return "large"
 }
 
 function pickRemainingColor(api: TuiPluginApi, remaining: number | null) {

@@ -2,10 +2,10 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import {
   formatPlanType,
-  formatRemainingBar,
   formatRemainingPercent,
   formatResetAt,
   formatUsageLines,
+  getRemainingBarSegments,
   getRemainingPercent,
 } from "../src/format.js"
 import type { UsageSnapshot } from "../src/types.js"
@@ -22,10 +22,10 @@ test("getRemainingPercent and formatRemainingPercent handle known and unknown us
   assert.equal(formatRemainingPercent(null), "Unknown usage")
 })
 
-test("formatRemainingBar renders a compact progress bar", () => {
-  assert.equal(formatRemainingBar(25, 8), "██████░░")
-  assert.equal(formatRemainingBar(100, 8), "░░░░░░░░")
-  assert.equal(formatRemainingBar(null, 8), "░░░░░░░░")
+test("getRemainingBarSegments returns compact progress dimensions", () => {
+  assert.deepEqual(getRemainingBarSegments(25, 8), { filledWidth: 6, emptyWidth: 2 })
+  assert.deepEqual(getRemainingBarSegments(100, 8), { filledWidth: 0, emptyWidth: 8 })
+  assert.deepEqual(getRemainingBarSegments(null, 8), { filledWidth: 0, emptyWidth: 8 })
 })
 
 test("formatResetAt returns a readable date when reset time is valid", () => {

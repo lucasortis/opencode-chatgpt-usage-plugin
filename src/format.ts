@@ -66,14 +66,14 @@ export function formatRemainingPercent(usedPercent: number | null): string {
   return `${rounded}% left`
 }
 
-export function formatRemainingBar(usedPercent: number | null, width = 12): string {
+export function getRemainingBarSegments(usedPercent: number | null, width = 12): { filledWidth: number; emptyWidth: number } {
   const clampedWidth = Math.max(1, Math.floor(width))
-  if (usedPercent === null) return "░".repeat(clampedWidth)
+  if (usedPercent === null) return { filledWidth: 0, emptyWidth: clampedWidth }
 
   const remaining = clamp(100 - usedPercent, 0, 100)
   const filledWidth = Math.round((remaining / 100) * clampedWidth)
 
-  return `${"█".repeat(filledWidth)}${"░".repeat(clampedWidth - filledWidth)}`
+  return { filledWidth, emptyWidth: clampedWidth - filledWidth }
 }
 
 export function formatResetAt(unixSeconds: number | null): string {
