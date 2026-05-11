@@ -249,7 +249,7 @@ function formatError(error) {
  */
 function parseArgs(argv) {
   const command = argv[0] ?? "install"
-  const rest = command === "install" || command === "uninstall" || command === "doctor" ? argv.slice(1) : argv
+  const rest = ["install", "update", "uninstall", "doctor"].includes(command) ? argv.slice(1) : argv
   return { command: normalizeCommand(command), ...parseOptions(rest) }
 }
 
@@ -258,8 +258,9 @@ function parseArgs(argv) {
  */
 function normalizeCommand(command) {
   if (["install", "uninstall", "doctor"].includes(command)) return command
+  if (command === "update") return "install"
   if (["local", "package"].includes(command)) return "install"
-  throw new Error(`Unknown command '${command}'. Expected install, uninstall, or doctor.`)
+  throw new Error(`Unknown command '${command}'. Expected install, update, uninstall, or doctor.`)
 }
 
 /**
@@ -361,7 +362,7 @@ const isMainModule = process.argv[1] ? path.resolve(process.argv[1]) === fileURL
 if (isMainModule) {
   cliMain().catch((error) => {
     console.error(formatError(error))
-    console.error("Usage: opencode-chatgpt-usage-plugin [install|uninstall|doctor] [--config /path/to/tui.json] [--plugin spec]")
+    console.error("Usage: opencode-chatgpt-usage-plugin [install|update|uninstall|doctor] [--config /path/to/tui.json] [--plugin spec]")
     process.exitCode = 1
   })
 }

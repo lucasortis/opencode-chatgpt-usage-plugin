@@ -12,6 +12,12 @@ npx @lucasortis/opencode-chatgpt-usage-plugin install
 
 The installer updates `~/.config/opencode/tui.json`, preserves existing plugins, avoids duplicate entries, and uses the public npm package. Restart or reload OpenCode after installing.
 
+To refresh the configured package spec after upgrading the npm package:
+
+```bash
+npx @lucasortis/opencode-chatgpt-usage-plugin update
+```
+
 To use a custom config path:
 
 ```bash

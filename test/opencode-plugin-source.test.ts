@@ -1,8 +1,10 @@
 import assert from "node:assert/strict"
+import { execFile } from "node:child_process"
 import { mkdtemp, readFile, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import test from "node:test"
+import { promisify } from "node:util"
 import {
   configureOpenCodePluginSource,
   installOpenCodePlugin,
@@ -10,6 +12,8 @@ import {
   PACKAGE_PLUGIN_SPEC,
   uninstallOpenCodePlugin,
 } from "../scripts/install-opencode-plugin.mjs"
+
+const execFileAsync = promisify(execFile)
 
 test("configureOpenCodePluginSource writes the local plugin path", async () => {
   const tempDir = await mkdtemp(path.join(tmpdir(), "opencode-plugin-source-"))
@@ -43,6 +47,17 @@ test("installOpenCodePlugin preserves existing plugins", async () => {
 
   assert.equal(config.theme, "dark")
   assert.deepEqual(config.plugin, ["old-plugin", PACKAGE_PLUGIN_SPEC])
+})
+
+test("CLI update command refreshes the package plugin entry", async () => {
+  const tempDir = await mkdtemp(path.join(tmpdir(), "opencode-plugin-source-"))
+  const configPath = path.join(tempDir, "tui.json")
+
+  await execFileAsync(process.execPath, ["./bin/opencode-chatgpt-usage-plugin.mjs", "update", "--config", configPath])
+
+  const config = JSON.parse(await readFile(configPath, "utf8"))
+
+  assert.deepEqual(config.plugin, [PACKAGE_PLUGIN_SPEC])
 })
 
 test("installOpenCodePlugin creates config when it does not exist", async () => {
