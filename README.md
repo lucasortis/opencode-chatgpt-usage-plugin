@@ -2,8 +2,7 @@
 
 OpenCode TUI plugin that adds `/gpt-usage` with `/usage` alias to show ChatGPT plan usage limits from `https://chatgpt.com/backend-api/wham/usage`.
 
-<img width="494" height="518" alt="image" src="https://github.com/user-attachments/assets/6b2b6989-531c-4cda-b8af-914f4a4cbbfb" />
-
+<img width="476" height="507" alt="image" src="https://github.com/user-attachments/assets/e528ebfc-205b-4d20-a9d9-0cf4c8fe947c" />
 
 ## Install
 
